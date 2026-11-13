@@ -1,0 +1,2583 @@
+define(['questAPI'], function(Quest){
+    let API = new Quest();
+    let isTouch = API.getGlobal().$isTouch;
+	
+    /**
+	* Page prototype
+	*/
+	API.addPagesSet('basicPage',{
+		noSubmit:false, //Change to true if you don't want to show the submit button.
+		header: 'Questionnaire',
+		autoFocus:true, 
+		submitText: 'Suivant',
+		decline: true,
+		declineText: 'Ne pas répondre',
+		prev: true,
+		prevText: 'Précédent',
+		required: true
+	});
+
+
+    /**
+	* Question prototypes
+	*/
+    API.addQuestionsSet('basicQ',{
+        decline: 'false',
+        required : true, 		
+        errorMsg: {
+            required: isTouch 
+                ? 'Veuillez sélectionner une réponse.'
+                : 'Veuillez sélectionner une réponse.'
+		},
+        autoSubmit:'false',
+        numericValues:'true'
+	});
+
+    API.addQuestionsSet('basicSelect',{ //Sélection unique 
+        inherit :'basicQ',
+        type: 'selectOne'
+    });
+
+	API.addQuestionsSet('basicMulti',{ //Sélection unique 
+        inherit :'basicQ',
+        type: 'selectMulti'
+    });
+	
+    API.addQuestionsSet('basicDropdown',{ //Menu déroulant 
+        inherit :'basicQ',
+        type : 'dropdown',
+        autoSubmit:false
+    });
+
+	API.addQuestionsSet('basicText',{
+		inherit : 'basicQ',
+		type : 'text',
+	});
+
+	API.addQuestionsSet('basicGrid',{
+		inherit: 'basicQ',
+		type: 'grid',
+		rowStemHide: true,
+		checkboxType : 'colorMark',
+		helpText: false,
+		columns: [
+			{type:'text', textProperty: 'left', css: {width:'15%'}},
+			{stem: '1', css: {width: '10%'}},
+			{stem: '2', css: {width: '10%'}},
+			{stem: '3', css: {width: '10%'}},
+			{stem: '4', css: {width: '10%'}},
+			{stem: '5', css: {width: '10%'}},
+			{type:'text', textProperty: 'right', css: {width:'15%'}},
+			{stem: 'Non concerné', value: 8, css: {width: '10%'}}
+		]
+	}),
+
+	API.addQuestionsSet('ressenti1',{
+		inherit: 'basicGrid', 
+		required: true,
+		stem:'<b>1 - En arrivant au CC2 de cette matière, vous sentiez-vous en confiance pour réussir ?</b> <br><i>Si vous n\'avez pas suivi cette matière ou ce TD, cochez "Non concerné".</i>', name:'ressenti1',
+		rows: [{left: 'Très peu en confiance', right: 'Tout à fait en confiance'}
+		]
+		}
+	);
+
+
+	API.addQuestionsSet('ressenti2',{
+		inherit: 'basicGrid',
+		required: true,
+		stem: '<b>2 - Comment avez-vous perçu la façon dont le chargé de TD de cette matière s\'adressait à vous et répondait à vos questions ?</b> <br><i>Si vous n\'avez pas suivi cette matière ou ce TD, cochez "Non concerné".</i>', name:'ressenti2',
+		rows: [{left: 'Désagréable et dévalorisante', right: 'Très agréable et valorisante'}
+		]
+	});
+
+	API.addQuestionsSet('ressenti3',{	
+		inherit: 'basicGrid', 
+		required: true,
+		stem: '<b>3 - Personnellement, pensez-vous avoir été traité différemment des autres étudiants dans cette matière, par exemple dans la façon dont l\'enseignant s\'adressait à vous, interagissait avec vous ou répondait à vos questions ?</b> <br><i>Si vous n\'avez pas suivi cette matière ou ce TD, cochez "Non concerné".</i>', name:'ressenti3',
+		rows: [{left: 'Moins bien traité', right: 'Mieux traité'}]
+		}
+	);
+
+	API.addQuestionsSet('ressenti4',{
+		inherit: 'basicMulti', 
+		decline: false,
+		stem: '<b>4 - D\'après vous, ces traitements différents dans ce TD pouvaient-ils être liés à ces différents éléments ?</b><br><i>Plusieurs réponses possibles.</i>',
+		answers: [
+			{text: 'Votre sexe (le fait que vous soyez un homme ou une femme)', value:1},
+			{text: 'Votre état de santé ou un handicap', value:2},
+			{text: 'Votre couleur de peau', value:3},
+			{text: 'Vos origines ou votre nationalité', value:4},
+			{text: 'Votre religion', value:5},
+			{text: 'Votre âge', value:6},
+			{text: 'Autre', value:7},
+			{text: 'Ne souhaite pas répondre / Ne sait pas', value:8},
+			{text: 'Non concerné', value:9}
+			]
+	});
+
+
+    //Socio-demo
+
+    API.addQuestionsSet('0',{
+        inherit: 'basicText',
+		type: 'textNumber',
+        name: 'id_etudiant',
+        stem: 'Veuillez indiquer votre identifiant',
+		min: 10000,
+		max: 40000,
+		errorMsg : {
+            min: 'Veuillez indiquer un numéro valide.',
+            max: 'Veuillez indiquer un numéro valide.',
+            number: 'Veuillez indiquer un numéro valide.'
+        },
+        validator: {
+            min: 10000,
+            max: 40000
+		}
+	});
+
+    API.addQuestionsSet('1',{
+		inherit : 'basicSelect',
+		name : 'licence',
+		decline : false,
+		stem : 'Vous êtes actuellement en :', 
+		answers : [
+			{text : 'L1', value:1},
+			{text : 'L2', value:2},
+			{text : 'L3', value:3}
+			]
+	});
+	
+	API.addQuestionsSet('2',{
+		inherit : 'basicSelect',
+		name : 'student_genre',
+		stem : 'Quel est votre sexe à l\'état-civil ?',
+		answers : [
+			{text : 'Homme', value:1},
+			{text : 'Femme', value:2},
+				]
+	});
+
+	API.addQuestionsSet('3',{ //ajouter plusieurs nationalités possibles 
+	    inherit : 'basicDropdown',
+	    name: 'nationalité1',
+	    stem: '<b>Quelle est votre nationalité ?</b> <i>Si vous avez plusieurs nationalités, sélectionnez plusieurs réponses.</i> <br> <br> Nationalité 1',
+	    answers: [
+	        {text:'Afghanistan', value:1},
+	        {text:'Afrique du Sud', value:2},
+	        {text:'Albanie', value:3},
+	        {text:'Algérie', value:4},
+	        {text:'Allemagne', value:5},
+	        {text:'Andorre', value:6},
+	        {text:'Angola', value:7},
+	        {text:'Arabie Saoudite', value:8},
+	        {text:'Argentine', value:9},
+	        {text:'Arménie', value:10},
+	        {text:'Australie', value:11},
+	        {text:'Autriche', value:12},
+	        {text:'Azerbaïdjan', value:13},
+	        {text:'Bahamas', value:14},
+	        {text:'Bahreïn', value:15},
+	        {text:'Bangladesh', value:16},
+	        {text:'Belgique', value:17},
+	        {text:'Bénin', value:18},
+	        {text:'Biélorussie', value:19},
+	        {text:'Bolivie', value:20},
+	        {text:'Bosnie-Herzégovine', value:21},
+	        {text:'Brésil', value:22},
+	        {text:'Bulgarie', value:23},
+	        {text:'Burkina Faso', value:24},
+	        {text:'Burundi', value:25},
+	        {text:'Cambodge', value:26},
+	        {text:'Cameroun', value:27},
+	        {text:'Canada', value:28},
+	        {text:'Cap-Vert', value:29},
+	        {text:'Chili', value:30},
+	        {text:'Chine', value:31},
+	        {text:'Chypre', value:32},
+	        {text:'Colombie', value:33},
+	        {text:'Comores', value:34},
+	        {text:'Congo', value:35},
+	        {text:'Corée du Nord', value:36},
+	        {text:'Corée du Sud', value:37},
+	        {text:'Costa Rica', value:38},
+	        {text:'Côte d\'Ivoire', value:39},
+	        {text:'Croatie', value:40},
+	        {text:'Cuba', value:41},
+	        {text:'Danemark', value:42},
+	        {text:'Djibouti', value:43},
+	        {text:'Égypte', value:44},
+	        {text:'Émirats Arabes Unis', value:45},
+	        {text:'Équateur', value:46},
+	        {text:'Espagne', value:47},
+	        {text:'Estonie', value:48},
+	        {text:'États-Unis', value:49},
+	        {text:'Éthiopie', value:50},
+	        {text:'Finlande', value:51},
+	        {text:'France', value:52},
+	        {text:'Gabon', value:53},
+	        {text:'Gambie', value:54},
+	        {text:'Géorgie', value:55},
+	        {text:'Ghana', value:56},
+	        {text:'Grèce', value:57},
+	        {text:'Guatemala', value:58},
+	        {text:'Guinée', value:59},
+	        {text:'Guinée équatoriale', value:60},
+	        {text:'Guinée-Bissau', value:61},
+	        {text:'Haïti', value:62},
+	        {text:'Honduras', value:63},
+	        {text:'Hongrie', value:64},
+	        {text:'Inde', value:65},
+	        {text:'Indonésie', value:66},
+	        {text:'Irak', value:67},
+	        {text:'Iran', value:68},
+	        {text:'Irlande', value:69},
+	        {text:'Islande', value:70},
+	        {text:'Israël', value:71},
+	        {text:'Italie', value:72},
+	        {text:'Jamaïque', value:73},
+	        {text:'Japon', value:74},
+	        {text:'Jordanie', value:75},
+	        {text:'Kazakhstan', value:76},
+	        {text:'Kenya', value:77},
+	        {text:'Koweït', value:78},
+	        {text:'Laos', value:79},
+	        {text:'Lettonie', value:80},
+	        {text:'Liban', value:81},
+	        {text:'Libéria', value:82},
+	        {text:'Libye', value:83},
+	        {text:'Lituanie', value:84},
+	        {text:'Luxembourg', value:85},
+	        {text:'Macédoine du Nord', value:86},
+	        {text:'Madagascar', value:87},
+	        {text:'Malaisie', value:88},
+	        {text:'Malawi', value:89},
+	        {text:'Mali', value:90},
+	        {text:'Malte', value:91},
+	        {text:'Maroc', value:92},
+	        {text:'Maurice', value:93},
+	        {text:'Mauritanie', value:94},
+	        {text:'Mexique', value:95},
+	        {text:'Moldavie', value:96},
+	        {text:'Monaco', value:97},
+	        {text:'Mongolie', value:98},
+	        {text:'Monténégro', value:99},
+	        {text:'Mozambique', value:100},
+	        {text:'Namibie', value:101},
+	        {text:'Népal', value:102},
+	        {text:'Nicaragua', value:103},
+	        {text:'Niger', value:104},
+	        {text:'Nigéria', value:105},
+	        {text:'Norvège', value:106},
+	        {text:'Nouvelle-Zélande', value:107},
+	        {text:'Oman', value:108},
+	        {text:'Ouganda', value:109},
+	        {text:'Pakistan', value:110},
+	        {text:'Palestine', value:111},
+	        {text:'Panama', value:112},
+	        {text:'Paraguay', value:113},
+	        {text:'Pays-Bas', value:114},
+	        {text:'Pérou', value:115},
+	        {text:'Philippines', value:116},
+	        {text:'Pologne', value:117},
+	        {text:'Portugal', value:118},
+	        {text:'Qatar', value:119},
+	        {text:'République Centrafricaine', value:120},
+	        {text:'République Démocratique du Congo', value:121},
+	        {text:'République Dominicaine', value:122},
+	        {text:'République Tchèque', value:123},
+	        {text:'Roumanie', value:124},
+	        {text:'Royaume-Uni', value:125},
+	        {text:'Russie', value:126},
+	        {text:'Rwanda', value:127},
+	        {text:'Sénégal', value:128},
+	        {text:'Serbie', value:129},
+	        {text:'Seychelles', value:130},
+	        {text:'Sierra Leone', value:131},
+	        {text:'Singapour', value:132},
+	        {text:'Slovaquie', value:133},
+	        {text:'Slovénie', value:134},
+	        {text:'Somalie', value:135},
+	        {text:'Soudan', value:136},
+	        {text:'Soudan du Sud', value:137},
+	        {text:'Sri Lanka', value:138},
+	        {text:'Suède', value:139},
+	        {text:'Suisse', value:140},
+	        {text:'Suriname', value:141},
+	        {text:'Syrie', value:142},
+	        {text:'Taïwan', value:143},
+	        {text:'Tanzanie', value:144},
+	        {text:'Tchad', value:145},
+	        {text:'Thaïlande', value:146},
+	        {text:'Togo', value:147},
+	        {text:'Trinité-et-Tobago', value:148},
+	        {text:'Tunisie', value:149},
+	        {text:'Turkménistan', value:150},
+	        {text:'Turquie', value:151},
+	        {text:'Ukraine', value:152},
+	        {text:'Uruguay', value:153},
+	        {text:'Venezuela', value:154},
+	        {text:'Viêt Nam', value:155},
+	        {text:'Yémen', value:156},
+	        {text:'Zambie', value:157},
+	        {text:'Zimbabwe', value:158},
+	        {text:'Autre', value:999}
+	    ]
+	});
+
+    API.addQuestionsSet('3bis',{ //ajouter plusieurs nationalités possibles 
+	    inherit : '3',
+	    name: 'nationalité2',
+	    stem: 'Nationalité 2',
+        required : false
+	});
+
+    API.addQuestionsSet('3ter',{ //ajouter plusieurs nationalités possibles 
+	    inherit : '3',
+	    name: 'nationalité3',
+	    stem: 'Nationalité 3',
+        required : false
+	});
+	
+	API.addQuestionsSet('4',{
+		inherit : 'basicText', 
+        type: 'textNumber',
+		name : 'annee_naissance',
+		stem : 'Quelle est votre année de naissance ?',
+        min: 1900,
+        max: 2015,
+		errorMsg : {
+            min: 'Veuillez indiquer une année de naissance valide.',
+            max: 'Veuillez indiquer une année de naissance valide.',
+            number: 'Veuillez indiquer une année de naissance valide.'
+        },
+        validator: {
+            min: 1900,
+            max: 2015
+		}
+	});
+
+	API.addQuestionsSet('5',{
+		inherit : 'basicSelect',
+		name : 'lieu_naissance',
+		stem : 'Où êtes-vous né(e) ?',
+		answers : [
+			{text : 'En France', value:1},
+			{text : 'A l\'étranger', value:2}
+			]
+	});
+
+	API.addQuestionsSet('5bis',{
+		inherit: 'basicDropdown',
+	    name: 'pays_naissance',
+	    stem: 'Dans quel pays êtes-vous né(e) ?',
+	    answers: [
+	        {text:'Afghanistan', value:1},
+	        {text:'Afrique du Sud', value:2},
+	        {text:'Albanie', value:3},
+	        {text:'Algérie', value:4},
+	        {text:'Allemagne', value:5},
+	        {text:'Andorre', value:6},
+	        {text:'Angola', value:7},
+	        {text:'Arabie Saoudite', value:8},
+	        {text:'Argentine', value:9},
+	        {text:'Arménie', value:10},
+	        {text:'Australie', value:11},
+	        {text:'Autriche', value:12},
+	        {text:'Azerbaïdjan', value:13},
+	        {text:'Bahamas', value:14},
+	        {text:'Bahreïn', value:15},
+	        {text:'Bangladesh', value:16},
+	        {text:'Belgique', value:17},
+	        {text:'Bénin', value:18},
+	        {text:'Biélorussie', value:19},
+	        {text:'Bolivie', value:20},
+	        {text:'Bosnie-Herzégovine', value:21},
+	        {text:'Brésil', value:22},
+	        {text:'Bulgarie', value:23},
+	        {text:'Burkina Faso', value:24},
+	        {text:'Burundi', value:25},
+	        {text:'Cambodge', value:26},
+	        {text:'Cameroun', value:27},
+	        {text:'Canada', value:28},
+	        {text:'Cap-Vert', value:29},
+	        {text:'Chili', value:30},
+	        {text:'Chine', value:31},
+	        {text:'Chypre', value:32},
+	        {text:'Colombie', value:33},
+	        {text:'Comores', value:34},
+	        {text:'Congo', value:35},
+	        {text:'Corée du Nord', value:36},
+	        {text:'Corée du Sud', value:37},
+	        {text:'Costa Rica', value:38},
+	        {text:'Côte d\'Ivoire', value:39},
+	        {text:'Croatie', value:40},
+	        {text:'Cuba', value:41},
+	        {text:'Danemark', value:42},
+	        {text:'Djibouti', value:43},
+	        {text:'Égypte', value:44},
+	        {text:'Émirats Arabes Unis', value:45},
+	        {text:'Équateur', value:46},
+	        {text:'Espagne', value:47},
+	        {text:'Estonie', value:48},
+	        {text:'États-Unis', value:49},
+	        {text:'Éthiopie', value:50},
+	        {text:'Finlande', value:51},
+	        {text:'France', value:52},
+	        {text:'Gabon', value:53},
+	        {text:'Gambie', value:54},
+	        {text:'Géorgie', value:55},
+	        {text:'Ghana', value:56},
+	        {text:'Grèce', value:57},
+	        {text:'Guatemala', value:58},
+	        {text:'Guinée', value:59},
+	        {text:'Guinée équatoriale', value:60},
+	        {text:'Guinée-Bissau', value:61},
+	        {text:'Haïti', value:62},
+	        {text:'Honduras', value:63},
+	        {text:'Hongrie', value:64},
+	        {text:'Inde', value:65},
+	        {text:'Indonésie', value:66},
+	        {text:'Irak', value:67},
+	        {text:'Iran', value:68},
+	        {text:'Irlande', value:69},
+	        {text:'Islande', value:70},
+	        {text:'Israël', value:71},
+	        {text:'Italie', value:72},
+	        {text:'Jamaïque', value:73},
+	        {text:'Japon', value:74},
+	        {text:'Jordanie', value:75},
+	        {text:'Kazakhstan', value:76},
+	        {text:'Kenya', value:77},
+	        {text:'Koweït', value:78},
+	        {text:'Laos', value:79},
+	        {text:'Lettonie', value:80},
+	        {text:'Liban', value:81},
+	        {text:'Libéria', value:82},
+	        {text:'Libye', value:83},
+	        {text:'Lituanie', value:84},
+	        {text:'Luxembourg', value:85},
+	        {text:'Macédoine du Nord', value:86},
+	        {text:'Madagascar', value:87},
+	        {text:'Malaisie', value:88},
+	        {text:'Malawi', value:89},
+	        {text:'Mali', value:90},
+	        {text:'Malte', value:91},
+	        {text:'Maroc', value:92},
+	        {text:'Maurice', value:93},
+	        {text:'Mauritanie', value:94},
+	        {text:'Mexique', value:95},
+	        {text:'Moldavie', value:96},
+	        {text:'Monaco', value:97},
+	        {text:'Mongolie', value:98},
+	        {text:'Monténégro', value:99},
+	        {text:'Mozambique', value:100},
+	        {text:'Namibie', value:101},
+	        {text:'Népal', value:102},
+	        {text:'Nicaragua', value:103},
+	        {text:'Niger', value:104},
+	        {text:'Nigéria', value:105},
+	        {text:'Norvège', value:106},
+	        {text:'Nouvelle-Zélande', value:107},
+	        {text:'Oman', value:108},
+	        {text:'Ouganda', value:109},
+	        {text:'Pakistan', value:110},
+	        {text:'Palestine', value:111},
+	        {text:'Panama', value:112},
+	        {text:'Paraguay', value:113},
+	        {text:'Pays-Bas', value:114},
+	        {text:'Pérou', value:115},
+	        {text:'Philippines', value:116},
+	        {text:'Pologne', value:117},
+	        {text:'Portugal', value:118},
+	        {text:'Qatar', value:119},
+	        {text:'République Centrafricaine', value:120},
+	        {text:'République Démocratique du Congo', value:121},
+	        {text:'République Dominicaine', value:122},
+	        {text:'République Tchèque', value:123},
+	        {text:'Roumanie', value:124},
+	        {text:'Royaume-Uni', value:125},
+	        {text:'Russie', value:126},
+	        {text:'Rwanda', value:127},
+	        {text:'Sénégal', value:128},
+	        {text:'Serbie', value:129},
+	        {text:'Seychelles', value:130},
+	        {text:'Sierra Leone', value:131},
+	        {text:'Singapour', value:132},
+	        {text:'Slovaquie', value:133},
+	        {text:'Slovénie', value:134},
+	        {text:'Somalie', value:135},
+	        {text:'Soudan', value:136},
+	        {text:'Soudan du Sud', value:137},
+	        {text:'Sri Lanka', value:138},
+	        {text:'Suède', value:139},
+	        {text:'Suisse', value:140},
+	        {text:'Suriname', value:141},
+	        {text:'Syrie', value:142},
+	        {text:'Taïwan', value:143},
+	        {text:'Tanzanie', value:144},
+	        {text:'Tchad', value:145},
+	        {text:'Thaïlande', value:146},
+	        {text:'Togo', value:147},
+	        {text:'Trinité-et-Tobago', value:148},
+	        {text:'Tunisie', value:149},
+	        {text:'Turkménistan', value:150},
+	        {text:'Turquie', value:151},
+	        {text:'Ukraine', value:152},
+	        {text:'Uruguay', value:153},
+	        {text:'Venezuela', value:154},
+	        {text:'Viêt Nam', value:155},
+	        {text:'Yémen', value:156},
+	        {text:'Zambie', value:157},
+	        {text:'Zimbabwe', value:158},
+	        {text:'Autre', value:999}
+	    ]
+	})
+	
+	API.addQuestionsSet('6',{
+		inherit : 'basicDropdown',
+		name : 'annee_france_1',
+		stem : 'A quel âge vous êtes-vous installé(e) en France ? <br><i> Il s\'agit de votre installation en France même si elle est temporaire pour vos études. Si vous ne savez pas, indiquez "Ne sait pas". </i>',
+		answers : [
+			{text : '0', value:0},
+			{text : '1', value:1},
+			{text : '2', value:2},
+			{text : '3', value:3},
+			{text : '4', value:4},
+			{text : '5', value:5},
+			{text : '6', value:6},
+			{text : '7', value:7},
+			{text : '8', value:8},
+			{text : '9', value:9},
+			{text : '10', value:10},
+			{text : '11', value:11},
+			{text : '12', value:12},
+			{text : '13', value:13},
+			{text : '14', value:14},
+			{text : '15', value:15},
+			{text : '16', value:16},
+			{text : '17', value:17},
+			{text : '18', value:18},
+			{text : '19', value:19},
+			{text : '20', value:20},
+			{text : '21', value:21},
+			{text : '22', value:22},
+			{text : '23', value:23},
+			{text : '24', value:24},
+			{text : '25', value:25},
+			{text : '26', value:26},
+			{text : '27', value:27},
+			{text : '28', value:28},
+			{text : '29', value:29},
+			{text : '30', value:30},
+			{text : 'Ne sait pas', value:999}
+			]
+	});
+
+	API.addQuestionsSet('7',{
+		inherit : 'basicSelect', 
+		name: 'annee_france_2',
+		stem : 'A quel âge vous êtes-vous installé(e) en France ? <br><i> Il s\'agit de votre installation en France même si elle est temporaire pour vos études </i>',
+		answers : [
+			{text : 'Avant 5 ans', value:1},
+			{text : 'Entre 5 et 10 ans', value:2},
+			{text : 'Entre 11 et 15 ans', value:3},
+			{text : 'Entre 15 et 18 ans', value:4},
+			{text : 'Après 18 ans', value:5}
+			]
+	});
+
+	API.addQuestionsSet('8',{
+		inherit : 'basicSelect',
+		name : 'langue_fr',
+		stem : 'Parliez-vous français au sein de votre famille durant votre enfance ?',
+		answers : [
+			{text : 'Oui', value:1},
+			{text : 'Non', value:2}
+			]
+	});
+
+	API.addQuestionsSet('9',{
+		inherit : 'basicSelect',
+		name : 'diplome_pere',
+		stem : 'Quel est le plus haut diplôme détenu par votre père ?',
+		answers : [
+			{text : 'Aucun diplôme', value:1},
+			{text : 'Diplôme inférieur au Baccalauréat (brevet des collèges, BEPC, CAP, BEP ou diplôme étranger de licence équivalent)',value:2},
+			{text : 'Baccalauréat général, technologique ou professionnel ou diplôme étranger de licence équivalent',value:3},
+			{text : 'Diplôme de licence BAC+2 (DEUG,BTS ou équivalent)', value:4},
+			{text : 'Diplôme de licence BAC+3 ou 4 (Licence, Maîtrise, Master 1 ou équivalent)', value:5},
+			{text : 'Diplôme de licence BAC+5 et plus (DEA, DESS, Master 2, Diplôme d\'une grande école, Doctorat', value:6},
+			{text : 'Ne sait pas', value:8}
+			]
+	});
+
+	API.addQuestionsSet('10',{
+		inherit : 'basicSelect',
+		name : 'diplome_mere',
+		stem : 'Quel est le plus haut diplôme détenu par votre mère ?',
+		answers : [
+			{text : 'Aucun diplôme', value:1},
+			{text : 'Diplôme inférieur au Baccalauréat (brevet des collèges, BEPC, CAP, BEP ou diplôme étranger de même niveau)',value:2},
+			{text : 'Baccalauréat général, technologique ou professionnel (ou diplôme étranger de même niveau)',value:3},
+			{text : 'Diplôme de licence BAC+2 (DEUG, BTS ou équivalent)', value:4},
+			{text : 'Diplôme de licence BAC+3 ou 4 (Licence, Maîtrise, Master 1 ou équivalent)', value:5},
+			{text : 'Diplôme de licence BAC+5 et plus (DEA, DESS, Master 2, Diplôme d\'une grande école, Doctorat', value:6},
+			{text : 'Ne sait pas', value:8}
+			]
+	});
+
+	API.addQuestionsSet('11',{
+		inherit : 'basicSelect',
+		name : 'travail_pere',
+		stem : 'Quelle est la situation actuelle ou la dernière situation de votre père ?',
+		answers : [
+			{text : 'Salarié', value:1},
+			{text : 'A son compte ou indépendant', value:2},
+			{text : 'Au chômage (inscrit ou non à France Travail)', value:3},
+			{text : 'Homme au foyer', value:4},
+			{text : 'Retraité ou retiré des affaires ou en préretraite', value:5},
+			{text : 'Autre', value:8}
+			]
+	});
+
+	API.addQuestionsSet('12',{
+		inherit : 'basicSelect',
+		name : 'travail_mere',
+		stem : 'Quelle est la situation actuelle ou la dernière situation de votre mère ?',
+		answers : [
+			{text : 'Salariée', value:1},
+			{text : 'A son compte ou indépendant', value:2},
+			{text : 'Au chômage (inscrite ou non à France Travail)', value:3},
+			{text : 'Femme au foyer', value:4},
+			{text : 'Retraitée ou retirée des affaires ou en préretraite', value:5},
+			{text : 'Autre', value:8}
+			]
+	});
+
+//parcours scolaire
+
+	API.addQuestionsSet('13',{
+		inherit : 'basicSelect',
+		name : 'bac',
+		stem : 'Quel baccalauréat (ou diplôme équivalent) avez-vous passé ?',
+		answers : [
+			{text : 'Général', value:1},
+			{text : 'Technologique', value:2},
+			{text : 'Professionnel', value:3}
+			]
+	});
+
+	API.addQuestionsSet('14', {
+		inherit : 'basicSelect', 
+		name : 'bac_fr',
+		stem : 'S\'agit-il d\'un baccalauréat (ou diplôme équivalent) d\'un établissement français (y compris à l\'étranger) ?',
+		answers :[
+			{text : 'Oui', value:1},
+			{text : 'Non', value:2}
+			]
+	});
+
+	API.addQuestionsSet('15', {
+		inherit : 'basicText',
+		type: 'textNumber',
+		name : 'bac_annee',
+		stem : 'En quelle année avez-vous passé le baccalauréat ?',
+		min: 2000,
+		max: 2025,
+		errorMsg : {
+			min: 'Veuillez indiquer une année de baccalauréat valide.'
+		},
+		validator: {
+			min: {compare: 'current.questions.annee_naissance.response', operator: 'greaterThan',
+			max: 2025
+			}
+		}
+	});
+
+	API.addQuestionsSet('16',{
+		inherit : 'basicSelect',
+		name : 'bac_filiere',
+		stem : 'Quelle était la série de votre baccalauréat général ?',
+		answers : [
+			{text : 'Série S (Scientifique ou équivalent)', value:1},
+			{text : 'Série ES (Economique et Sociale ou équivalent)', value:2},
+			{text : 'Série L (Littéraire ou équivalent)', value:3},
+			{text : 'Autre', value:4}
+			]
+	});
+
+	API.addQuestionsSet('17',{
+		inherit : 'basicMulti',
+		name : 'bac_specialité_term',
+		stem : 'Avez-vous suivi les enseignements suivants en terminale ? <i>Plusieurs réponses possibles</i>',
+		answers : [
+			{text : 'Enseignement de spécialité Mathématiques', value:1},
+			{text : 'Enseignement de spécialité Sciences économiques et sociales', value:2},
+			{text : 'Option Mathématiques Expertes', value:3},
+			{text : 'Option Mathématiques Complémentaires', value:4},
+			{text : 'Aucun des enseignements mentionnés', value:5}
+			]
+	});
+
+	API.addQuestionsSet('18',{
+		inherit : 'basicSelect', 
+		name : 'math_premiere', 
+		stem : 'Avez-vous suivi l\'enseignement de spécialité de Mathématiques en Première ?',
+		answers : [
+			{text : 'Oui', value:1},
+			{text : 'Non', value:2}
+			]
+	});
+
+	API.addQuestionsSet('19',{
+		inherit : 'basicSelect', 
+		name : 'bac_mention',
+		stem : 'Quelle mention avez-vous eu au baccalauréat ?',
+		answers : [
+			{text : 'Mention passable / Aucune mention (moyenne entre 10 et 12)', value:1},
+			{text : 'Mention assez bien (moyenne entre 12 et 14)', value:2},
+			{text : 'Mention bien (moyenne entre 14 et 16)', value:3},
+			{text : 'Mention très bien (moyenne égale ou supérieure à 16)', value:4}
+			]
+	});
+
+	//environnement d'étude 
+	API.addQuestionsSet('20',{
+		inherit : 'basicMulti',
+		name : 'environnement', 
+		stem : 'Veuillez cocher les phrases qui correspondent à votre situation. <i>Plusieurs réponses possibles</i>', 
+		answers : [
+			{text : 'Je dispose d\'un ordinateur portable.', value:1},
+			{text : 'J\'ai un espace de travail personnel à mon domicile.', value:2},
+			{text : 'Je dispose d\'un emploi de plus de 2 heures par semaine en parallèle de mes études.', value:3},
+			{text : 'J\'habite chez mes parents.', value:4},
+			{text : 'J\'habite chez d\'autres membres de ma famille.', value:5},
+			{text : 'Je viens à l\'université en transport en commun.', value:6}
+			]
+	});
+
+	API.addQuestionsSet('21',{
+		inherit : 'basicSelect', 
+		name : 'trajet',
+		stem : 'Combien de temps en moyenne mettez-vous pour venir à l\'université ?',
+		answers : [
+			{text : 'Moins de 30 minutes', value:1},
+			{text : 'Entre 30 et 60 minutes', value:2},
+			{text : 'Plus d\'une heure', value:3}
+			]
+	});
+
+	API.addQuestionsSet('22',{
+		inherit : 'basicSelect', 
+		name : 'suite_licence', 
+		stem : 'Souhaitez-vous poursuivre vos études jusqu\'en L3 Economie et Gestion ?',
+		answers : [
+			{text : 'Oui', value:1},
+			{text : 'Non', value:2},
+			{text : 'Ne sait pas', value:3}
+			]
+	});
+
+	API.addQuestionsSet('23',{
+		inherit : 'basicSelect', 
+		name : 'suite_etudes',
+		stem : 'Qu\'envisagez-vous après votre licence ?', 
+		answers : [
+			{text : 'Continuer dans le même domaine (économie ou gestion)', value:1},
+			{text : 'Continuer mes études dans un autre domaine', value:2},
+			{text : 'Arrêter mes études', value:3},
+			{text : 'Ne sait pas', value:8}
+			]
+	});
+
+
+	API.addQuestionsSet('24',{
+		inherit : 'basicSelect', 
+		name : 'stereotypes', 
+		stem : 'Au-delà de votre expéricence personnelle, pensez-vous appartenir à un groupe qui fait l\'objet de stéréotypes ou de préjugés négatifs de la part des enseignants en raison de l\'origine ?',
+		answers : [
+			{text : 'Oui', value:1}, 
+			{text : 'Non', value:2},
+			{text : 'Ne sait pas', value:8}
+			]
+	});
+
+	API.addQuestionsSet('24bis',{
+		inherit: 'basicGrid',
+		name: 'ambiance',
+		stem: 'Durant les deux semestres, étiez-vous satisfait(e) de l\'ambiance de travail dans votre groupe de TD ? <i>Si vous avez plusieurs groupes de TD, renseignez la réponse pour votre principale groupe de TD.</i>',
+		columns: [
+			{type:'text', textProperty: 'left', css: {width:'15%'}},
+			{stem: '1 - Pas du tout statisfait', css: {width: '10%'}},
+			{stem: '2', css: {width: '10%'}},
+			{stem: '3 - Moyennement satisfait', css: {width: '10%'}},
+			{stem: '4', css: {width: '10%'}},
+			{stem: '5 - Tout à fais satisfait', css: {width: '10%'}},
+			{type:'text', textProperty: 'right', css: {width:'15%'}}
+		],
+		rows: [
+			{text: 'Semestre 1', name: 'ambiance_S1'},
+			{text: 'Semestre 2', name: 'ambiance_S2'}
+		]
+	})
+
+	API.addQuestionsSet('24ter',{
+		inherit: 'basicSelect',
+		name: 'lien_classe',
+		stem: 'Durant les deux semestres, avez-vous noué des liens pour travailler avec d\'autres étudiants de votre groupe de TD ? <i>Si vous avez plusieurs groupes de TD, renseignez la réponse pour votre principale groupe de TD.</i>',
+		answers: [
+			{text: 'Aucun lien', value: 1},
+			{text: 'Un seul lien', value: 2},
+			{text: 'Quelques liens (deux ou trois)', value: 3},
+			{text: 'Plusieurs (quatre ou cinq)', value: 4},
+			{text: 'De nombreux liens (plus de cinq)', value: 5}
+		]
+	})
+
+	//L1
+	
+	API.addQuestionsSet('l1anglais1_1',{
+		inherit: 'ressenti1', 
+		name: 'l1anglais1_1',
+		header: 'Anglais (S1)'
+	});
+
+	API.addQuestionsSet('l1anglais1_2',{
+		inherit: 'ressenti2', 
+		name: 'l1anglais1_2',
+		header: 'Anglais (S1)'
+	});
+
+	API.addQuestionsSet('l1anglais1_3',{
+		inherit: 'ressenti3', 
+		name: 'l1anglais1_3',
+		header: 'Anglais (S1)'
+	});
+
+	API.addQuestionsSet('l1anglais1_4',{
+		inherit: 'ressenti4', 
+		name: 'l1anglais1_4',
+		header: 'Anglais (S1)'
+	});
+
+
+	API.addQuestionsSet('l1renfo_maths1',{
+		inherit: 'ressenti1', 
+		name: 'l1renfo_maths1',
+		header: 'Renforcement en mathématiques (S1)'
+	});
+
+	API.addQuestionsSet('l1renfo_maths2',{
+		inherit: 'ressenti2', 
+		name: 'l1renfo_maths2',
+		header: 'Renforcement en mathématiques (S1)'
+	});
+
+	API.addQuestionsSet('l1renfo_maths3',{
+		inherit: 'ressenti3', 
+		name: 'l1renfo_maths3',
+		header: 'Renforcement en mathématiques (S1)'
+	});
+
+	API.addQuestionsSet('l1renfo_maths4',{
+		inherit: 'ressenti4', 
+		name: 'l1renfo_maths4',
+		header: 'Renforcement en mathématiques (S1)'
+	});
+
+	API.addQuestionsSet('l1maths1_1',{
+		inherit: 'ressenti1', 
+		name: 'l1maths1_1',
+		header: 'Mathématiques 1 (S1)'
+	});
+
+	API.addQuestionsSet('l1maths1_2',{
+		inherit: 'ressenti2', 
+		name: 'l1maths1_2',
+		header: 'Mathématiques 1 (S1)'
+	});
+
+	API.addQuestionsSet('l1maths1_3',{
+		inherit: 'ressenti3', 
+		name: 'l1maths1_3',
+		header: 'Mathématiques 1 (S1)'
+	});
+
+	API.addQuestionsSet('l1maths1_4',{
+		inherit: 'ressenti4', 
+		name: 'l1maths1_4',
+		header: 'Mathématiques 1 (S1)'
+	});
+
+	API.addQuestionsSet('l1stats1_1',{
+		inherit: 'ressenti1', 
+		name: 'l1stats1_1',
+		header: 'Statistiques 1 (S1)'
+	});
+
+	API.addQuestionsSet('l1stats1_2',{
+		inherit: 'ressenti2', 
+		name: 'l1stats1_2',
+		header: 'Statistiques 1 (S1)'
+	});
+
+	API.addQuestionsSet('l1stats1_3',{
+		inherit: 'ressenti3', 
+		name: 'l1stats1_3',
+		header: 'Statistiques 1 (S1)'
+	});
+
+	API.addQuestionsSet('l1stats1_4',{
+		inherit: 'ressenti4', 
+		name: 'l1stats1_4',
+		header: 'Statistiques 1 (S1)'
+	});
+
+	API.addQuestionsSet('l1intro_eco1',{
+		inherit: 'ressenti1', 
+		name: 'l1intro_eco1',
+		header: 'Introduction à l\'éonomie (S1)'
+	});
+
+	API.addQuestionsSet('l1intro_eco2',{
+		inherit: 'ressenti2', 
+		name: 'l1intro_eco2',
+		header: 'Introduction à l\'éonomie 1 (S1)'
+	});
+
+	API.addQuestionsSet('l1intro_eco3',{
+		inherit: 'ressenti3', 
+		name: 'l1intro_eco3',
+		header: 'Introduction à l\'éonomie (S1)'
+	});
+
+	API.addQuestionsSet('l1intro_eco4',{
+		inherit: 'ressenti4', 
+		name: 'l1intro_eco4',
+		header: 'Introduction à l\'éonomie 1 (S1)'
+	});
+
+	API.addQuestionsSet('l1intro_gest1',{
+		inherit: 'ressenti1', 
+		name: 'l1intro_gest1',
+		header: 'Introduction à la gestion et au management (S1)'
+	});
+
+	API.addQuestionsSet('l1intro_gest2',{
+		inherit: 'ressenti2', 
+		name: 'l1intro_gest2',
+		header: 'Introduction à la gestion et au management (S1)'
+	});
+
+	API.addQuestionsSet('l1intro_gest3',{
+		inherit: 'ressenti3', 
+		name: 'l1intro_gest3',
+		header: 'Introduction à la gestion et au management (S1)'
+	});
+
+	API.addQuestionsSet('l1intro_gest4',{
+		inherit: 'ressenti4', 
+		name: 'l1intro_gest4',
+		header: 'Introduction à la gestion et au management (S1)'
+	});
+
+	API.addQuestionsSet('l1micro1_1',{
+		inherit: 'ressenti1', 
+		name: 'l1micro1_1',
+		header: 'Microéconomie 1 (S2)'
+	});
+
+	API.addQuestionsSet('l1micro1_2',{
+		inherit: 'ressenti2', 
+		name: 'l1micro1_2',
+		header: 'Microéconomie 1 (S2)'
+	});
+
+	API.addQuestionsSet('l1micro1_3',{
+		inherit: 'ressenti3', 
+		name: 'l1micro1_3',
+		header: 'Microéconomie 1 (S2)'
+	});
+
+	API.addQuestionsSet('l1micro1_4',{
+		inherit: 'ressenti4', 
+		name: 'l1micro1_4',
+		header: 'Microéconomie 1 (S2)'
+	});
+
+	API.addQuestionsSet('l1macro1_1',{
+		inherit: 'ressenti1', 
+		name: 'l1macro1_1',
+		header: 'Macroéconomie 1 (S2)'
+	});
+
+	API.addQuestionsSet('l1macro1_2',{
+		inherit: 'ressenti2', 
+		name: 'l1macro1_2',
+		header: 'Macroéconomie 1 (S2)'
+	});
+
+	API.addQuestionsSet('l1macro1_3',{
+		inherit: 'ressenti3', 
+		name: 'l1macro1_3',
+		header: 'Macroéconomie 1 (S2)'
+	});
+
+	API.addQuestionsSet('l1macro1_4',{
+		inherit: 'ressenti4', 
+		name: 'l1macro1_4',
+		header: 'Macroéconomie 1 (S2)'
+	});
+
+	API.addQuestionsSet('l1enjeux_manag1',{
+		inherit: 'ressenti1', 
+		name: 'l1enjeux_manag1',
+		header: 'Enjeux du management des organisations (S2)'
+	});
+
+	API.addQuestionsSet('l1enjeux_manag2',{
+		inherit: 'ressenti2', 
+		name: 'l1enjeux_manag2',
+		header: 'Enjeux du management des organisations (S2)'
+	});
+
+	API.addQuestionsSet('l1enjeux_manag3',{
+		inherit: 'ressenti3', 
+		name: 'l1enjeux_manag3',
+		header: 'Enjeux du management des organisations (S2)'
+	});
+
+	API.addQuestionsSet('l1enjeux_manag4',{
+		inherit: 'ressenti4', 
+		name: 'l1enjeux_manag4',
+		header: 'Enjeux du management des organisations (S2)'
+	});
+
+	API.addQuestionsSet('l1compta1_1',{
+		inherit: 'ressenti1', 
+		name: 'l1compta1_1',
+		header: 'Comptabilité générale (S2)'
+	});
+
+	API.addQuestionsSet('l1compta1_2',{
+		inherit: 'ressenti2', 
+		name: 'l1compta1_2',
+		header: 'Comptabilité générale (S2)'
+	});
+
+	API.addQuestionsSet('l1compta1_3',{
+		inherit: 'ressenti3', 
+		name: 'l1compta1_3',
+		header: 'Comptabilité générale (S2)'
+	});
+
+	API.addQuestionsSet('l1compta1_4',{
+		inherit: 'ressenti4', 
+		name: 'l1compta1_4',
+		header: 'Comptabilité générale (S2)'
+	});
+
+	API.addQuestionsSet('l1anglais2_1',{
+		inherit: 'ressenti1', 
+		name: 'l1anglais2_1',
+		header: 'Anglais (S2)'
+	});
+
+	API.addQuestionsSet('l1anglais2_2',{
+		inherit: 'ressenti2', 
+		name: 'l1anglais2_2',
+		header: 'Anglais (S2)'
+	});
+
+	API.addQuestionsSet('l1anglais2_3',{
+		inherit: 'ressenti3', 
+		name: 'l1anglais2_3',
+		header: 'Anglais (S2)'
+	});
+
+	API.addQuestionsSet('l1anglais2_4',{
+		inherit: 'ressenti4', 
+		name: 'l1anglais2_4',
+		header: 'Anglais (S2)'
+	});
+
+	API.addQuestionsSet('l1maths2_1',{
+		inherit: 'ressenti1', 
+		name: 'l1maths2_1',
+		header: 'Mathématiques 2 (S2)'
+	});
+
+	API.addQuestionsSet('l1maths2_2',{
+		inherit: 'ressenti2', 
+		name: 'l1maths2_2',
+		header: 'Mathématiques 2 (S2)'
+	});
+
+	API.addQuestionsSet('l1maths2_3',{
+		inherit: 'ressenti3', 
+		name: 'l1maths2_3',
+		header: 'Mathématiques 2 (S2)'
+	});
+
+	API.addQuestionsSet('l1maths2_4',{
+		inherit: 'ressenti4', 
+		name: 'l1maths2_4',
+		header: 'Mathématiques 2 (S2)'
+	});
+
+	API.addQuestionsSet('l1stats2_1',{
+		inherit: 'ressenti1', 
+		name: 'l1stats2_1',
+		header: 'Statistiques 2 (S2)'
+	});
+
+	API.addQuestionsSet('l1stats2_2',{
+		inherit: 'ressenti2', 
+		name: 'l1stats2_2',
+		header: 'Statistiques 2 (S2)'
+	});
+
+	API.addQuestionsSet('l1stats2_3',{
+		inherit: 'ressenti3', 
+		name: 'l1stats2_3',
+		header: 'Statistiques 2 (S2)'
+	});
+
+	API.addQuestionsSet('l1stats2_4',{
+		inherit: 'ressenti4', 
+		name: 'l1stats2_4',
+		header: 'Statistiques 2 (S2)'
+	});
+
+
+	//L2
+
+	API.addQuestionsSet('l2micro2_1',{
+		inherit: 'ressenti1', 
+		name: 'l2micro2_1',
+		header: 'Microéconomie 2 (S1)'
+	});
+
+	API.addQuestionsSet('l2micro2_2',{
+		inherit: 'ressenti2', 
+		name: 'l2micro2_2',
+		header: 'Microéconomie 2 (S1)'
+	});
+
+	API.addQuestionsSet('l2micro2_3',{
+		inherit: 'ressenti3', 
+		name: 'l2micro2_3',
+		header: 'Microéconomie 2 (S1)'
+	});
+
+	API.addQuestionsSet('l2micro2_4',{
+		inherit: 'ressenti4', 
+		name: 'l2micro2_4',
+		header: 'Microéconomie 2 (S1)'
+	});
+
+	API.addQuestionsSet('l2macro2_1',{
+		inherit: 'ressenti1', 
+		name: 'l2macro2_1',
+		header: 'Macroéconomie 2 (S1)'
+	});
+
+	API.addQuestionsSet('l2macro2_2',{
+		inherit: 'ressenti2', 
+		name: 'l2macro2_2',
+		header: 'Macroéconomie 2 (S1)'
+	});
+
+	API.addQuestionsSet('l2macro2_3',{
+		inherit: 'ressenti3', 
+		name: 'l2macro2_3',
+		header: 'Macroéconomie 2 (S1)'
+	});
+
+	API.addQuestionsSet('l2macro2_4',{
+		inherit: 'ressenti4', 
+		name: 'l2macro2_4',
+		header: 'Macroéconomie 2 (S1)'
+	});
+
+	API.addQuestionsSet('l2compta2_1',{
+		inherit: 'ressenti1', 
+		name: 'l2compta2_1',
+		header: 'Comptabilité générale (S1)'
+	});
+
+	API.addQuestionsSet('l2compta2_2',{
+		inherit: 'ressenti2', 
+		name: 'l2compta2_2',
+		header: 'Comptabilité générale (S1)'
+	});
+
+	API.addQuestionsSet('l2compta2_3',{
+		inherit: 'ressenti3', 
+		name: 'l2compta2_3',
+		header: 'Comptabilité générale (S1)'
+	});
+
+	API.addQuestionsSet('l2compta2_4',{
+		inherit: 'ressenti4', 
+		name: 'l2compta2_4',
+		header: 'Comptabilité générale (S1)'
+	});
+
+	API.addQuestionsSet('l2intro_rh1',{
+		inherit: 'ressenti1', 
+		name: 'l2intro_rh1',
+		header: 'Introduction aux ressources humaines (S1)'
+	});
+
+	API.addQuestionsSet('l2intro_rh2',{
+		inherit: 'ressenti2', 
+		name: 'l2intro_rh2',
+		header: 'Introduction aux ressources humaines (S1)'
+	});
+
+	API.addQuestionsSet('l2intro_rh3',{
+		inherit: 'ressenti3', 
+		name: 'l2intro_rh3',
+		header: 'Introduction aux ressources humaines (S1)'
+	});
+
+	API.addQuestionsSet('l2intro_rh4',{
+		inherit: 'ressenti4', 
+		name: 'l2intro_rh4',
+		header: 'Introduction aux ressources humaines (S1)'
+	});
+
+
+	API.addQuestionsSet('l2etudes_mark1',{
+		inherit: 'ressenti1', 
+		name: 'l2etudes_mark1',
+		header: 'Etudes marketing (S1)'
+	});
+
+	API.addQuestionsSet('l2etudes_mark2',{
+		inherit: 'ressenti2', 
+		name: 'l2etudes_mark2',
+		header: 'Etudes marketing (S1)'
+	});
+
+	API.addQuestionsSet('l2etudes_mark3',{
+		inherit: 'ressenti3', 
+		name: 'l2etudes_mark3',
+		header: 'Etudes marketing (S1)'
+	});
+
+	API.addQuestionsSet('l2etudes_mark4',{
+		inherit: 'ressenti4', 
+		name: 'l2etudes_mark4',
+		header: 'Etudes marketing (S1)'
+	});
+
+	API.addQuestionsSet('l2maths3_1',{
+		inherit: 'ressenti1', 
+		name: 'l2maths3_1',
+		header: 'Mathématiques 3 (S1)'
+	});
+
+	API.addQuestionsSet('l2maths3_2',{
+		inherit: 'ressenti2', 
+		name: 'l2maths3_2',
+		header: 'Mathématiques 3 (S1)'
+	});
+
+	API.addQuestionsSet('l2maths3_3',{
+		inherit: 'ressenti3', 
+		name: 'l2maths3_3',
+		header: 'Mathématiques 3 (S1)'
+	});
+
+	API.addQuestionsSet('l2maths3_4',{
+		inherit: 'ressenti4', 
+		name: 'l2maths3_4',
+		header: 'Mathématiques 3 (S1)'
+	});
+
+	API.addQuestionsSet('l2proba1_1',{
+		inherit: 'ressenti1', 
+		name: 'l2proba1_1',
+		header: 'Probabilités (S1)'
+	});
+
+	API.addQuestionsSet('l2proba1_2',{
+		inherit: 'ressenti2', 
+		name: 'l2proba1_2',
+		header: 'Probabilités (S1)'
+	});
+
+	API.addQuestionsSet('l2proba1_3',{
+		inherit: 'ressenti3', 
+		name: 'l2proba1_3',
+		header: 'Probabilités (S1)'
+	});
+
+	API.addQuestionsSet('l2proba1_4',{
+		inherit: 'ressenti4', 
+		name: 'l2proba1_4',
+		header: 'Probabilités (S1)'
+	});
+
+	API.addQuestionsSet('l2anglais3_1',{
+		inherit: 'ressenti1', 
+		name: 'l2anglais3_1',
+		header: 'Anglais (S1)'
+	});
+
+	API.addQuestionsSet('l2anglais3_2',{
+		inherit: 'ressenti2', 
+		name: 'l2anglais3_2',
+		header: 'Anglais (S1)'
+	});
+
+	API.addQuestionsSet('l2anglais3_3',{
+		inherit: 'ressenti3', 
+		name: 'l2anglais3_3',
+		header: 'Anglais (S1)'
+	});
+
+	API.addQuestionsSet('l2anglais3_4',{
+		inherit: 'ressenti4', 
+		name: 'l2anglais3_4',
+		header: 'Anglais (S1)'
+	});
+
+	API.addQuestionsSet('l2macro3_1',{
+		inherit: 'ressenti1', 
+		name: 'l2macro3_1',
+		header: 'Macroéconomie 3 (S2)'
+	});
+
+	API.addQuestionsSet('l2macro3_2',{
+		inherit: 'ressenti2', 
+		name: 'l2macro3_2',
+		header: 'Macroéconomie 2 (S2)'
+	});
+
+	API.addQuestionsSet('l2macro3_3',{
+		inherit: 'ressenti3', 
+		name: 'l2macro3_3',
+		header: 'Macroéconomie 3 (S2)'
+	});
+
+	API.addQuestionsSet('l2macro3_4',{
+		inherit: 'ressenti4', 
+		name: 'l2macro3_4',
+		header: 'Macroéconomie 2 (S2)'
+	});
+
+	API.addQuestionsSet('l2pol_eco_soc1',{
+		inherit: 'ressenti1', 
+		name: 'l2pol_eco_soc1',
+		header: 'Politiques économiques et sociales (S2)'
+	});
+
+	API.addQuestionsSet('l2pol_eco_soc2',{
+		inherit: 'ressenti2', 
+		name: 'l2pol_eco_soc2',
+		header: 'Politiques économiques et sociales (S2)'
+	});
+
+	API.addQuestionsSet('l2pol_eco_soc3',{
+		inherit: 'ressenti3', 
+		name: 'l2pol_eco_soc3',
+		header: 'Politiques économiques et sociales (S2)'
+	});
+
+	API.addQuestionsSet('l2pol_eco_soc4',{
+		inherit: 'ressenti4', 
+		name: 'l2pol_eco_soc4',
+		header: 'Politiques économiques et sociales (S2)'
+	});
+
+	API.addQuestionsSet('l2mon_fi1',{
+		inherit: 'ressenti1', 
+		name: 'l2mon_fi1',
+		header: 'Monnaie et finance (S2)'
+	});
+
+	API.addQuestionsSet('l2mon_fi2',{
+		inherit: 'ressenti2', 
+		name: 'l2mon_fi2',
+		header: 'Monnaie et finance (S2)'
+	});
+
+	API.addQuestionsSet('l2mon_fi3',{
+		inherit: 'ressenti3', 
+		name: 'l2mon_fi3',
+		header: 'Monnaie et finance (S2)'
+	});
+
+	API.addQuestionsSet('l2mon_fi4',{
+		inherit: 'ressenti4', 
+		name: 'l2mon_fi4',
+		header: 'Monnaie et finance (S2)'
+	});
+
+	API.addQuestionsSet('l2analyse_fi1',{
+		inherit: 'ressenti1', 
+		name: 'l2analyse_fi1',
+		header: 'Analyse financière (S2)'
+	});
+
+	API.addQuestionsSet('l2analyse_fi2',{
+		inherit: 'ressenti2', 
+		name: 'l2analyse_fi2',
+		header: 'Analyse financière (S2)'
+	});
+
+	API.addQuestionsSet('l2analyse_fi3',{
+		inherit: 'ressenti3', 
+		name: 'l2analyse_fi3',
+		header: 'Analyse financière (S2)'
+	});
+
+	API.addQuestionsSet('l2analyse_fi4',{
+		inherit: 'ressenti4', 
+		name: 'l2analyse_fi4',
+		header: 'Analyse financière (S2)'
+	});
+
+	API.addQuestionsSet('l2gest_prod1',{
+		inherit: 'ressenti1', 
+		name: 'l2gest_prod1',
+		header: 'Gestion de production (S2)'
+	});
+
+	API.addQuestionsSet('l2gest_prod2',{
+		inherit: 'ressenti2', 
+		name: 'l2gest_prod2',
+		header: 'Gestion de production (S2)'
+	});
+
+	API.addQuestionsSet('l2gest_prod3',{
+		inherit: 'ressenti3', 
+		name: 'l2gest_prod3',
+		header: 'Gestion de production (S2)'
+	});
+
+	API.addQuestionsSet('l2gest_prod4',{
+		inherit: 'ressenti4', 
+		name: 'l2gest_prod4',
+		header: 'Gestion de production (S2)'
+	});
+
+	API.addQuestionsSet('l2analyse_don1',{
+		inherit: 'ressenti1', 
+		name: 'l2analyse_don1',
+		header: 'Analyse des données (S2)'
+	});
+
+	API.addQuestionsSet('l2analyse_don2',{
+		inherit: 'ressenti2', 
+		name: 'l2analyse_don2',
+		header: 'Analyse des données (S2)'
+	});
+
+	API.addQuestionsSet('l2analyse_don3',{
+		inherit: 'ressenti3', 
+		name: 'l2analyse_don3',
+		header: 'Analyse des données (S2)'
+	});
+
+	API.addQuestionsSet('l2analyse_don4',{
+		inherit: 'ressenti4', 
+		name: 'l2analyse_don4',
+		header: 'Analyse des données (S2)'
+	});
+
+	API.addQuestionsSet('l2anglais4_1',{
+		inherit: 'ressenti1', 
+		name: 'l2anglais4_1',
+		header: 'Anglais (S2)'
+	});
+
+	API.addQuestionsSet('l2anglais4_2',{
+		inherit: 'ressenti2', 
+		name: 'l2anglais4_2',
+		header: 'Anglais (S2)'
+	});
+
+	API.addQuestionsSet('l2anglais4_3',{
+		inherit: 'ressenti3', 
+		name: 'l2anglais4_3',
+		header: 'Anglais (S2)'
+	});
+
+	API.addQuestionsSet('l2anglais4_4',{
+		inherit: 'ressenti4', 
+		name: 'l2anglais4_4',
+		header: 'Anglais (S2)'
+	});
+
+
+	//L3 gestion
+
+	API.addQuestionsSet('l3marketing1',{
+		inherit: 'ressenti1',
+		name: 'l3marketing1',
+		header: 'Marketing durable (S5)'
+	});
+
+    API.addQuestionsSet('l3marketing2',{
+		inherit: 'ressenti2',
+		name: 'l3marketing2',
+		header: 'Marketing durable (S5)'
+	});
+
+	API.addQuestionsSet('l3marketing3',{
+		inherit: 'ressenti3',
+		name: 'l3marketing3',
+		header: 'Marketing durable (S5)'
+	});
+
+    API.addQuestionsSet('l3marketing4',{
+		inherit: 'ressenti4',
+		name: 'l3marketing4',
+		header: 'Marketing durable (S5)'
+	});
+
+    API.addQuestionsSet('l3anglais5_1',{
+		inherit: 'ressenti1',
+		name: 'l3anglais5_1',
+		header: 'Anglais (S5)'
+	});
+
+    API.addQuestionsSet('l3anglais5_2',{
+		inherit: 'ressenti2',
+		name: 'l3anglais5_2',
+		header: 'Anglais (S5)'
+	});
+
+	API.addQuestionsSet('l3anglais5_3',{
+		inherit: 'ressenti3',
+		name: 'l3anglais5_3',
+		header: 'Anglais (S5)'
+	});
+
+    API.addQuestionsSet('l3anglais5_4',{
+		inherit: 'ressenti4',
+		name: 'l3anglais5_4',
+		header: 'Anglais (S5)'
+	});
+
+	API.addQuestionsSet('l3strat1',{
+		inherit: 'ressenti1',
+		name: 'l3strat1',
+		header: 'Fondamentaux de la stratégie (S6)'
+	});
+
+    API.addQuestionsSet('l3strat2',{
+		inherit: 'ressenti2',
+		name: 'l3strat2',
+		header: 'Fondamentaux de la stratégie (S6)'
+	});
+
+	API.addQuestionsSet('l3strat3',{
+		inherit: 'ressenti3',
+		name: 'l3strat3',
+		header: 'Fondamentaux de la stratégie (S6)'
+	});
+
+    API.addQuestionsSet('l3strat4',{
+		inherit: 'ressenti4',
+		name: 'l3strat4',
+		header: 'Fondamentaux de la stratégie (S6)'
+	});
+	
+    API.addQuestionsSet('l3anglais6_1',{
+		inherit: 'ressenti1',
+		name: 'l3anglais6_1',
+		header: 'Anglais (S6)'
+	});
+
+    API.addQuestionsSet('l3anglais6_2',{
+		inherit: 'ressenti2',
+		name: 'l3anglais6_2',
+		header: 'Anglais (S6)'
+	});
+
+	API.addQuestionsSet('l3anglais6_3',{
+		inherit: 'ressenti3',
+		name: 'l3anglais6_3',
+		header: 'Anglais (S6)'
+	});
+
+    API.addQuestionsSet('l3anglais6_4',{
+		inherit: 'ressenti4',
+		name: 'l3anglais6_4',
+		header: 'Anglais (S6)'
+	});
+
+    API.addQuestionsSet('l3stats1',{
+		inherit: 'ressenti1',
+		name: 'l3stats1',
+		header: 'Statistiques descriptives (S6)'
+	});
+
+    API.addQuestionsSet('l3stats2',{
+		inherit: 'ressenti2',
+		name: 'l3stats2',
+		header: 'Statistiques descriptives (S6)'
+	});
+
+	API.addQuestionsSet('l3stats3',{
+		inherit: 'ressenti3',
+		name: 'l3stats3',
+		header: 'Statistiques descriptives (S6)'
+	});
+
+    API.addQuestionsSet('l3stats4',{
+		inherit: 'ressenti4',
+		name: 'l3stats4'
+	});
+
+	//M1 pilote 
+
+	API.addQuestionsSet('m1stats1',{
+		inherit: 'ressenti1',
+		name: 'm1stats1',
+		header: 'Statistiques d\'enquête (S1)'
+	});
+
+	API.addQuestionsSet('m1stats2',{
+		inherit: 'ressenti2',
+		name: 'm1stats2',
+		header: 'Statistiques d\'enquête (S1)'
+	});
+
+	API.addQuestionsSet('m1stats3',{
+		inherit: 'ressenti3',
+		name: 'm1stats3',
+		header: 'Statistiques d\'enquête (S1)'
+	});
+
+	API.addQuestionsSet('m1stats4',{
+		inherit: 'ressenti4',
+		name: 'm1stats4',
+		header: 'Statistiques d\'enquête (S1)'
+	});
+
+	API.addQuestionsSet('m1stata1',{
+		inherit: 'ressenti1',
+		name: 'm1stata',
+		header: 'Gestion des données sous STATA (S1)'
+	});
+
+	API.addQuestionsSet('m1stata2',{
+		inherit: 'ressenti2',
+		name: 'm1stata2',
+		header: 'Gestion des données sous STATA (S1)'
+	});
+
+	API.addQuestionsSet('m1stata3',{
+		inherit: 'ressenti3',
+		name: 'm1stata3',
+		header: 'Gestion des données sous STATA (S1)'
+	});
+
+	API.addQuestionsSet('m1stata4',{
+		inherit: 'ressenti4',
+		name: 'm1stata4',
+		header: 'Gestion des données sous STATA (S1)'
+	});
+
+	API.addQuestionsSet('m1econometrie1',{
+		inherit: 'ressenti1',
+		name: 'm1econometrie1',
+		header: 'Econométrie générale linéaire (S1)'
+	});
+
+	API.addQuestionsSet('m1econometrie2',{
+		inherit: 'ressenti2',
+		name: 'm1econometrie2',
+		header: 'Econométrie générale linéaire (S1)'
+	});
+
+	API.addQuestionsSet('m1econometrie3',{
+		inherit: 'ressenti3',
+		name: 'm1econometrie3',
+		header: 'Econométrie générale linéaire (S1)'
+	});
+
+	API.addQuestionsSet('m1econometrie4',{
+		inherit: 'ressenti4',
+		name: 'm1econometrie4',
+		header: 'Econométrie générale linéaire (S1)'
+	});
+
+	API.addQuestionsSet('m1managementSI1',{
+		inherit: 'ressenti1',
+		name: 'm1managementSI1',
+		header: 'Management des systèmes d\'information (S1)'
+	});
+
+	API.addQuestionsSet('m1managementSI2',{
+		inherit: 'ressenti2',
+		name: 'm1managementSI2',
+		header: 'Management des systèmes d\'information (S1)'
+	});
+
+	API.addQuestionsSet('m1managementSI3',{
+		inherit: 'ressenti3',
+		name: 'm1managementSI3',
+		header: 'Management des systèmes d\'information (S1)'
+	});
+
+	API.addQuestionsSet('m1managementSI4',{
+		inherit: 'ressenti4',
+		name: 'm1managementSI4',
+		header: 'Management des systèmes d\'information (S1)'
+	});
+
+	API.addQuestionsSet('m1managementstrat1',{
+		inherit: 'ressenti1',
+		name: 'm1managementstrat1',
+		header: 'Management stratégique (S1)'
+	});
+
+	API.addQuestionsSet('m1managementstrat2',{
+		inherit: 'ressenti2',
+		name: 'm1managementstrat2',
+		header: 'Management stratégique (S1)'
+	});
+
+	API.addQuestionsSet('m1managementstrat3',{
+		inherit: 'ressenti3',
+		name: 'm1managementstrat3',
+		header: 'Management stratégique (S1)'
+	});
+
+	API.addQuestionsSet('m1managementstrat4',{
+		inherit: 'ressenti4',
+		name: 'm1managementstrat4',
+		header: 'Management stratégique (S1)'
+	});
+
+	API.addQuestionsSet('m1csr1',{
+		inherit: 'ressenti1',
+		name: 'm1csr1',
+		header: 'Corporate Social Responsibility (S1)'
+	});
+
+	API.addQuestionsSet('m1csr2',{
+		inherit: 'ressenti2',
+		name: 'm1csr2',
+		header: 'Corporate Social Responsibility (S1)'
+	});
+
+	API.addQuestionsSet('m1csr3',{
+		inherit: 'ressenti3',
+		name: 'm1csr3',
+		header: 'Corporate Social Responsibility (S1)'
+	});
+
+	API.addQuestionsSet('m1csr4',{
+		inherit: 'ressenti4',
+		name: 'm1csr4',
+		header: 'Corporate Social Responsibility (S1)'
+	});
+
+	API.addQuestionsSet('m1projetenquete1',{
+		inherit: 'ressenti1',
+		name: 'm1projetenquete1',
+		header: 'Projet de techniques d\'enquête (S1)'
+	});
+
+	API.addQuestionsSet('m1projetenquete2',{
+		inherit: 'ressenti2',
+		name: 'm1projetenquete2',
+		header: 'Projet de techniques d\'enquête (S1)'
+	});
+
+	API.addQuestionsSet('m1projetenquete3',{
+		inherit: 'ressenti3',
+		name: 'm1projetenquete3',
+		header: 'Projet de techniques d\'enquête (S1)'
+	});
+
+	API.addQuestionsSet('m1projetenquete4',{
+		inherit: 'ressenti4',
+		name: 'm1projetenquete4',
+		header: 'Projet de techniques d\'enquête (S1)'
+	});
+
+	API.addQuestionsSet('m1traitementR1',{
+		inherit: 'ressenti1',
+		name: 'm1traitementR1',
+		header: 'Traitement de données sous R (S1)'
+	});
+
+	API.addQuestionsSet('m1traitementR2',{
+		inherit: 'ressenti2',
+		name: 'm1traitementR2',
+		header: 'Traitement de données sous R (S1)'
+	});
+
+	API.addQuestionsSet('m1traitementR3',{
+		inherit: 'ressenti3',
+		name: 'm1traitementR3',
+		header: 'Traitement de données sous R (S1)'
+	});
+
+	API.addQuestionsSet('m1traitementR4',{
+		inherit: 'ressenti4',
+		name: 'm1traitementR4',
+		header: 'Traitement de données sous R (S1)'
+	});
+
+	API.addQuestionsSet('m1TER1',{
+		inherit: 'ressenti1',
+		name: 'm1TER1',
+		header: 'TER (S1)'
+	});
+
+	API.addQuestionsSet('m1TER2',{
+		inherit: 'ressenti2',
+		name: 'm1TER2',
+		header: 'TER (S1)'
+	});
+
+	API.addQuestionsSet('m1TER3',{
+		inherit: 'ressenti3',
+		name: 'm1TER3',
+		header: 'TER (S1)'
+	});
+
+	API.addQuestionsSet('m1TER4',{
+		inherit: 'ressenti4',
+		name: 'm1TER4',
+		header: 'TER (S1)'
+	});
+
+	API.addQuestionsSet('m1anglais1',{
+		inherit: 'ressenti1',
+		name: 'm1anglais1',
+		header: 'Business English (S1)'
+	});
+
+	API.addQuestionsSet('m1anglais2',{
+		inherit: 'ressenti2',
+		name: 'm1anglais2',
+		header: 'Business English (S1)'
+	});
+
+	API.addQuestionsSet('m1anglais3',{
+		inherit: 'ressenti3',
+		name: 'm1anglais3',
+		header: 'Business English (S1)'
+	});
+
+	API.addQuestionsSet('m1anglais4',{
+		inherit: 'ressenti4',
+		name: 'm1anglais4',
+		header: 'Business English (S1)'
+	});
+
+	API.addQuestionsSet('m1data1',{
+		inherit: 'ressenti1',
+		name: 'm1data1',
+		header: 'Data visualisation (S1)'
+	});
+
+	API.addQuestionsSet('m1data2',{
+		inherit: 'ressenti2',
+		name: 'm1data2',
+		header: 'Data visualisation (S1)'
+	});
+
+	API.addQuestionsSet('m1data3',{
+		inherit: 'ressenti3',
+		name: 'm1data3',
+		header: 'Data visualisation (S1)'
+	});
+
+	API.addQuestionsSet('m1data4',{
+		inherit: 'ressenti4',
+		name: 'm1data4',
+		header: 'Data visualisation (S1)'
+	});
+
+	API.addQuestionsSet('m1sql1',{
+		inherit: 'ressenti1',
+		name: 'm1sql1',
+		header: 'Initiation SQL (S1)'
+	});
+
+	API.addQuestionsSet('m1sql2',{
+		inherit: 'ressenti2',
+		name: 'm1sql2',
+		header: 'Initiation SQL (S1)'
+	});
+
+	API.addQuestionsSet('m1sql3',{
+		inherit: 'ressenti3',
+		name: 'm1sql3',
+		header: 'Initiation SQL (S1)'
+	});
+
+	API.addQuestionsSet('m1sql4',{
+		inherit: 'ressenti4',
+		name: 'm1sql4',
+		header: 'Initiation SQL (S1)'
+	});
+
+
+
+
+
+
+
+    //sequence
+    
+    API.addSequence([
+        {inherit: 'basicPage', progressBar: '1/11', decline: false, questions:[
+            {inherit: '0', decline: false}]},
+        
+        {inherit:'basicPage', progressBar: '2/11', decline: false, questions:{inherit:'1'}},
+		{inherit:'basicPage', progressBar: '3/11', questions:{inherit:'2'}},
+		{inherit:'basicPage', progressBar: '4/11',questions: [
+            {inherit:'3', helpText: false},
+            {inherit:'3bis', helpText: false},
+            {inherit:'3ter'}
+        ]},
+		{inherit:'basicPage', progressBar: '5/11', questions:{inherit:'4'}},
+		{inherit:'basicPage', progressBar: '6/11', 
+			questions:[
+				{inherit:'5'},
+				{remix: true,
+					mixer : 'branch',
+					conditions : [
+						{compare: 2, to: 'current.questions.lieu_naissance.response'}
+					],
+					data: [
+						{inherit: '5bis'},
+						{inherit: '6'},
+						{remix: true,
+							mixer: 'branch',
+							conditions: [
+								{compare: 999, to: 'current.questions.annee_france_1.response'}
+							],
+							data: [
+								{inherit: '7'}
+							]
+						}
+					]
+				}
+			]
+		},
+
+		 
+		
+		{inherit:'basicPage', progressBar: '7/11', questions:{inherit:'8'}}, //tt le monde se rejoint ici
+		
+		{inherit:'basicPage', progressBar: '8/11', questions:{inherit:'9'}},
+		{inherit:'basicPage', progressBar: '9/11', questions:{inherit:'10'}},
+		{inherit:'basicPage', progressBar: '10/11', questions:{inherit:'11'}},
+		{inherit:'basicPage', progressBar: '11/11', questions:{inherit:'12'}},
+
+		//parcours scolaire 
+		
+		{inherit: 'basicPage', questions: 
+			{type: 'info',
+			stem: 'Nous allons maintenant vous poser des questions sur votre parcours scolaire, à commencer par votre baccalauréat.'
+			}
+		},
+		{inherit:'basicPage', progressBar: '1/6', questions:{inherit:'13'}},
+		
+		{mixer: 'branch',
+			conditions: [
+				{compare: 'current.questions.bac.response', to: 1}
+			],
+			data: [
+				{inherit: 'basicPage', progressBar: '2/6', questions: {inherit: '14'}},
+				{mixer: 'branch',
+					conditions: [
+						{compare: 'current.questions.bac_fr.response', to: 1}
+					],
+					data: [
+						{inherit: 'basicPage', progressBar: '3/6', questions: {inherit: '15'}},
+						{mixer: 'branch', 
+							conditions: [
+								{compare: 'current.questions.bac_annee.response', to: 2021, operator: 'lesserThan'}
+							],
+							data: [
+								{inherit: 'basicPage', progressBar: '4/6', questions: {inherit: '16'}},
+							],
+							elseData: [
+								{inherit: 'basicPage', progressBar: '4/6', questions: {inherit: '17'}},
+								{inherit: 'basicPage', progressBar: '5/6', questions: {inherit: '18'}}
+							]
+						}
+					],
+					elseData: [
+						{inherit: 'basicPage', progressBar: '3/6', questions: {inherit: '15'}},
+						{inherit: 'basicPage', progressBar: '3/6', questions: {inherit: '16'}}
+					]
+				}
+			],
+			elseData: [
+				{inherit: 'basicPage', progressBar: '2/6', questions:{inherit: '14'}},
+				{inherit: 'basicPage', progressBar: '3/6', questions: {inherit: '15'}}
+			]
+		},
+	
+		{inherit:'basicPage', progressBar: '6/6', questions:{inherit:'19'}},
+		{inherit:'basicPage', questions: 
+			{type: 'info', stem: 'Nous allons maintenant vous poser des questions sur votre environnement d’étude actuellement à votre domicile.'}},
+		{inherit: 'basicPage',progressBar: '1/5', questions:{inherit:'20'}},
+		{inherit: 'basicPage', progressBar: '2/5', questions:{inherit:'21'}},
+		{mixer: 'branch',
+			conditions: [{compare: 'current.questions.licence.response', to:1}],
+			data: [{inherit: 'basicPage', progressBar: '3/5', questions:{inherit:'22'}}],
+			elseData: [{inherit: 'basicPage', progressBar: '4/5', questions:{inherit:'23'}}]
+		},
+
+	{inherit: 'basicPage', progressBar: '5/5', questions: {inherit: '24'}},
+
+	{inherit: 'basicPage', questions: 
+		{type: 'info',
+		stem: 'Nous allons maintenant vous poser des questions sur votre année à l\'université. <br> Nous commençons par des questions générales sur vos groupes de TD.'
+		}
+	},
+
+	{inherit: 'basicPage', progressBar: '1/2', questions: {inherit: '24bis'}},
+	{inherit: 'basicPage', progressBar: '1/2', questions: {inherit: '24ter'}},
+
+
+	{inherit: 'basicPage', questions: 
+		{type: 'info',
+		stem: 'Nous allons maintenant vous poser des questions sur chacun des enseignements que vous avez reçus en TD cette année. <br> Nous commençons par des questions générales sur vos groupes de TD.'
+		}
+	},
+
+	{mixer: 'multiBranch',
+		branches: [
+			{
+				conditions: [
+					{compare: 'current.questions.licence.response', to :1}
+				],
+				data: [
+					{inherit: 'basicPage',
+					progressBar: '1/13', 
+					header: 'Anglais (S1)',
+					required: true, 
+					questions:[
+						{inherit:'l1anglais1_1'},
+						{inherit:'l1anglais1_2'},
+						{inherit:'l1anglais1_3'},
+						{inherit:'l1anglais1_4'}]
+					},
+					{inherit: 'basicPage', 
+						progressBar: '2/13',
+					header: 'Renforcement en mathématiques (S1)',
+					questions:[
+						{inherit:'l1renfo_maths1'},
+						{inherit:'l1renfo_maths2'},
+						{inherit:'l1renfo_maths3'},
+						{inherit:'l1renfo_maths4'}
+					]},
+					{inherit: 'basicPage', 
+						progressBar: '3/13',
+					header: 'Mathématiques 1 (S1)',
+					questions:[
+						{inherit:'l1maths1_1'},
+						{inherit:'l1maths1_2'},
+						{inherit:'l1maths1_3'},
+						{inherit:'l1maths1_4'}
+					]},
+					{inherit: 'basicPage', 
+						progressBar: '4/13',
+					header: 'Statistiques 1 (S1)',
+					questions:[
+						{inherit:'l1stats1_1'},
+						{inherit:'l1stats1_2'},
+						{inherit:'l1stats1_3'},
+						{inherit:'l1stats1_4'}
+						]
+					},
+					{inherit: 'basicPage', 
+						progressBar: '5/13',
+					header: 'Introduction à l\'économie (S1)',
+					questions:[
+						{inherit:'l1intro_eco1'},
+						{inherit:'l1intro_eco2'},
+						{inherit:'l1intro_eco3'},
+						{inherit:'l1intro_eco4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '6/13',
+					header: 'Introduction à la gestion et au management (S1)',
+					questions:[
+						{inherit:'l1intro_gest1'},
+						{inherit:'l1intro_gest2'},
+						{inherit:'l1intro_gest3'},
+						{inherit:'l1intro_gest4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '7/13',
+					header: 'Microéconomie 1 (S2)',
+					questions:[
+						{inherit:'l1micro1_1'},
+						{inherit:'l1micro1_2'},
+						{inherit:'l1micro1_3'},
+						{inherit:'l1micro1_4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '8/13',
+					header: 'Macroéconomie 1 (S2)',
+					questions:[
+						{inherit:'l1macro1_1'},
+						{inherit:'l1macro1_2'},
+						{inherit:'l1macro1_3'},
+						{inherit:'l1macro1_4'}
+						]
+					},
+					
+					{inherit: 'basicPage', 
+						progressBar: '9/13',
+					header: 'Enjeux du management des organisations (S2)',
+					questions:[
+						{inherit:'l1enjeux_manag1'},
+						{inherit:'l1enjeux_manag2'},
+						{inherit:'l1enjeux_manag3'},
+						{inherit:'l1enjeux_manag4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '10/13',
+					header: 'Comptabilité générale (S2)',
+					questions:[
+						{inherit:'l1compta1_1'},
+						{inherit:'l1compta1_2'},
+						{inherit:'l1compta1_3'},
+						{inherit:'l1compta1_4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '11/13',
+					header: 'Anglais (S2)',
+					questions:[
+						{inherit:'l1anglais2_1'},
+						{inherit:'l1anglais2_2'},
+						{inherit:'l1anglais2_3'},
+						{inherit:'l1anglais2_4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '12/13',
+					header: 'Mathématiques 2 (S2)',
+					questions:[
+						{inherit:'l1maths2_1'},
+						{inherit:'l1maths2_2'},
+						{inherit:'l1maths2_3'},
+						{inherit:'l1maths2_4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '13/13',
+					header: 'Statistiques 2 (S2)',
+					questions:[
+						{inherit:'l1stats2_1'},
+						{inherit:'l1stats2_2'},
+						{inherit:'l1stats2_3'},
+						{inherit:'l1stats2_4'}
+						]
+					},
+				]
+			},
+			{
+				conditions: [
+					{compare: 'current.questions.licence.response', to :2}
+				],
+				data: [
+					{inherit: 'basicPage', 
+						progressBar: '1/15',
+					header: 'Microéconomie 2 (S1)',
+					questions:[
+						{inherit:'l2micro2_1'},
+						{inherit:'l2micro2_2'},
+						{inherit:'l2micro2_3'},
+						{inherit:'l2micro2_4'}
+						]
+					},
+				
+					{inherit: 'basicPage', 
+						progressBar: '2/15',
+					header: 'Macroéconomie 2 (S1)',
+					questions:[
+						{inherit:'l2macro2_1'},
+						{inherit:'l2macro2_2'},
+						{inherit:'l2macro2_3'},
+						{inherit:'l2macro2_4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '3/15',
+					header: 'Comptabilité générale (S1)',
+					questions:[
+						{inherit:'l2compta2_1'},
+						{inherit:'l2compta2_2'},
+						{inherit:'l2compta2_3'},
+						{inherit:'l2compta2_4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '4/15',
+					header: 'Introduction aux ressources humaines (S1)',
+					questions:[
+						{inherit:'l2intro_rh1'},
+						{inherit:'l2intro_rh2'},
+						{inherit:'l2intro_rh3'},
+						{inherit:'l2intro_rh4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '5/15',
+					header: 'Etudes marketing (S1)',
+					questions:[
+						{inherit:'l2etudes_mark1'},
+						{inherit:'l2etudes_mark2'},
+						{inherit:'l2etudes_mark3'},
+						{inherit:'l2etudes_mark4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '6/15',
+					header: 'Mathématiques 3 (S1)',
+					questions:[
+						{inherit:'l2maths3_1'},
+						{inherit:'l2maths3_2'},
+						{inherit:'l2maths3_3'},
+						{inherit:'l2maths3_4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '7/15',
+					header: 'Probabilités (S1)',
+					questions:[
+						{inherit:'l2proba1_1'},
+						{inherit:'l2proba1_2'},
+						{inherit:'l2proba1_3'},
+						{inherit:'l2proba1_4'}
+						]
+					},
+					
+					{inherit: 'basicPage',
+						progressBar: '8/15', 
+					header: 'Anglais (S1)',
+					questions:[
+						{inherit:'l2anglais3_1'},
+						{inherit:'l2anglais3_2'},
+						{inherit:'l2anglais3_3'},
+						{inherit:'l2anglais3_4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '9/15',
+					header: 'Anglais (S1)',
+					questions:[
+						{inherit:'l2macro3_1'},
+						{inherit:'l2macro3_2'},
+						{inherit:'l2macro3_3'},
+						{inherit:'l2macro3_4'}
+						]
+					},
+
+					{inherit: 'basicPage',
+						progressBar: '10/15', 
+					header: 'Politiques économiques et sociales (S2)',
+					questions:[
+						{inherit:'l2pol_eco_soc1'},
+						{inherit:'l2pol_eco_soc2'},
+						{inherit:'l2pol_eco_soc3'},
+						{inherit:'l2pol_eco_soc4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '11/15',
+					header: 'Monnaie et finance (S2)',
+					questions:[
+						{inherit:'l2mon_fi1'},
+						{inherit:'l2mon_fi2'},
+						{inherit:'l2mon_fi3'},
+						{inherit:'l2mon_fi4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '12/15',
+					header: 'Analyse financière (S2)',
+					questions:[
+						{inherit:'l2analyse_fi1'},
+						{inherit:'l2analyse_fi2'},
+						{inherit:'l2analyse_fi3'},
+						{inherit:'l2analyse_fi4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '13/15',
+					header: 'Gestion de production (S2)',
+					questions:[
+						{inherit:'l2gest_prod1'},
+						{inherit:'l2gest_prod2'},
+						{inherit:'l2gest_prod3'},
+						{inherit:'l2gest_prod4'}
+						]
+					},
+					
+					{inherit: 'basicPage', 
+						progressBar: '14/15',
+					header: 'Analyse des données (S2)',
+					questions:[
+						{inherit:'l2analyse_don1'},
+						{inherit:'l2analyse_don2'},
+						{inherit:'l2analyse_don3'},
+						{inherit:'l2analyse_don4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '15/15',
+					header: 'Anglais (S2)',
+					questions:[
+						{inherit:'l2anglais4_1'},
+						{inherit:'l2anglais4_2'},
+						{inherit:'l2anglais4_3'},
+						{inherit:'l2anglais4_4'}
+						]
+					},
+				]
+			},
+			{
+				conditions: [
+					{compare: 'current.questions.licence.response', to:3}
+				],
+				data: [
+					{inherit: 'basicPage', 
+						progressBar: '1/5',
+					header: 'Marketing durable (S5)',
+					questions: [
+						{inherit:'l3marketing1'},
+						{inherit:'l3marketing2'},
+						{inherit:'l3marketing3'},
+						{inherit:'l3marketing4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+					header: 'Anglais (S5)',
+					progressBar: '2/5',
+					questions: [
+						{inherit:'l3anglais5_1'},
+						{inherit:'l3anglais5_2'},
+						{inherit:'l3anglais5_3'},
+						{inherit:'l3anglais5_4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '3/5',
+					header: 'Fondamentaux de la stratégie (S6)',
+					questions: [
+						{inherit:'l3strat1'},
+						{inherit:'l3strat2'},
+						{inherit:'l3strat3'},
+						{inherit:'l3strat4'}
+						]
+					},
+
+					{inherit: 'basicPage', 
+						progressBar: '4/5',
+					header: 'Anglais (S6)',
+					conditions: 'current.questions.licence.response == 3',
+					questions: [
+						{inherit:'l3anglais6_1'},
+						{inherit:'l3anglais6_2'},
+						{inherit:'l3anglais6_3'},
+						{inherit:'l3anglais6_4'}
+						]
+					},	
+
+					{inherit: 'basicPage', 
+						progressBar: '5/5',
+					header: 'Statistiques descriptives (S6)',
+					conditions: 'current.questions.licence.response == 3',
+					questions: [
+						{inherit:'l3stats1'},
+						{inherit:'l3stats2'},
+						{inherit:'l3stats3'},
+						{inherit:'l3stats4'}
+						]
+					}
+				]
+			},
+			{
+				conditions: [
+					{compare: 'current.questions.licence.response', to:4}
+				],
+				data: [
+					{inherit: 'basicPage', 
+						progressBar: '1/12',
+					header: 'Statistiques d\'enquête (S1)',
+					questions: [
+						{inherit:'m1stats1'},
+						{inherit:'m1stats2'},
+						{inherit:'m1stats3'},
+						{inherit:'m1stats4'}
+						]
+					},
+					
+					{inherit: 'basicPage',
+						progressBar: '2/12',
+					header: 'Gestion des données sous STATA (S1)',
+					questions: [
+						{inherit:'m1stata1'},
+						{inherit:'m1stata2'},
+						{inherit:'m1stata3'},
+						{inherit:'m1stata4'}
+						]
+					},
+
+					{inherit: 'basicPage',
+						progressBar: '3/12',
+					header: 'Econométrie générale linéaire (S1)',
+					questions: [
+						{inherit:'m1econometrie1'},
+						{inherit:'m1econometrie2'},
+						{inherit:'m1econometrie3'},
+						{inherit:'m1econometrie4'}
+						]
+					},
+
+					{inherit: 'basicPage',
+						progressBar: '4/12',
+					header: 'Management des systèmes d\'information (S1)',
+					questions: [
+						{inherit:'m1managementSI1'},
+						{inherit:'m1managementSI2'},
+						{inherit:'m1managementSI3'},
+						{inherit:'m1managementSI4'}
+						]
+					},
+
+					{inherit: 'basicPage',
+						progressBar: '5/12',
+					header: 'Management stratégique (S1)',
+					questions: [
+						{inherit:'m1managementstrat1'},
+						{inherit:'m1managementstrat2'},
+						{inherit:'m1managementstrat3'},
+						{inherit:'m1managementstrat4'}
+						]
+					},
+
+					{inherit: 'basicPage',
+						progressBar: '6/12',
+					header: 'Corporate Social Responsibility (S1)',
+					questions: [
+						{inherit:'m1csr1'},
+						{inherit:'m1csr2'},
+						{inherit:'m1csr3'},
+						{inherit:'m1csr4'}
+						]
+					},
+
+					{inherit: 'basicPage',
+						progressBar: '7/12',
+					header: 'Projet de techniques d\'enquête (S1)',
+					questions: [
+						{inherit:'m1projetenquete1'},
+						{inherit:'m1projetenquete2'},
+						{inherit:'m1projetenquete3'},
+						{inherit:'m1projetenquete4'}
+						]
+					},
+
+					{inherit: 'basicPage',
+						progressBar: '8/12',
+					header: 'Traitement de données sous R (S1)',
+					questions: [
+						{inherit:'m1traitementR1'},
+						{inherit:'m1traitementR2'},
+						{inherit:'m1traitementR3'},
+						{inherit:'m1traitementR4'}
+						]
+					},
+
+					{inherit: 'basicPage',
+						progressBar: '9/12',
+					header: 'TER (S1)',
+					questions: [
+						{inherit:'m1TER1'},
+						{inherit:'m1TER2'},
+						{inherit:'m1TER3'},
+						{inherit:'m1TER4'}
+						]
+					},
+
+					{inherit: 'basicPage',
+						progressBar: '10/12',
+					header: 'Business English (S1)',
+					questions: [
+						{inherit:'m1anglais1'},
+						{inherit:'m1anglais2'},
+						{inherit:'m1anglais3'},
+						{inherit:'m1anglais4'}
+						]
+					},
+
+					{inherit: 'basicPage',
+						progressBar: '11/12',
+					header: 'Data visualisation (S1)',
+					questions: [
+						{inherit:'m1data1'},
+						{inherit:'m1data2'},
+						{inherit:'m1data3'},
+						{inherit:'m1data4'}
+						]
+					},
+
+					{inherit: 'basicPage',
+						progressBar: '12/12',
+					header: 'Initiation SQL (S1)',
+					questions: [
+						{inherit:'m1sql1'},
+						{inherit:'m1sql2'},
+						{inherit:'m1sql3'},
+						{inherit:'m1sql4'}	
+						]
+					}
+				]
+			}
+		]
+	}
+
+		
+	]);
+	
+
+    return API.script;
+});
